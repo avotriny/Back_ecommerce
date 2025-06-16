@@ -9,6 +9,7 @@ use App\Models\Produit;
 use App\Models\Commande;
 use Stripe\Stripe;
 use Stripe\Checkout\Session as CheckoutSession;
+use Illuminate\Support\Facades\Auth; 
 
 class CommandeController extends Controller
 {
@@ -16,16 +17,27 @@ class CommandeController extends Controller
      * GET /api/commandes
      * Liste toutes les commandes avec pagination
      */
-    public function index()
+public function index()
     {
-        $commandes = Commande::with('produit.subcategorie.categorie')
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        $user = Auth::user();
+
+        // On construit toujours la requête avec les relations souhaitées
+        $query = Commande::with('produit.subcategorie.categorie', 'user')
+                         ->orderBy('created_at', 'desc');
+
+        // Si l'utilisateur n'est pas admin, on ne lui montre que les commandes
+        // dont le champ `email` correspond à son adresse email
+        if ($user->role !== 'admin') {
+            $query->where('email', $user->email);
+        }
+
+        // Pagination par 10 résultats
+        $commandes = $query->paginate(10);
 
         return response()->json([
             'status'    => 200,
             'commandes' => $commandes,
-        ]);
+        ], 200);
     }
 
     /**
