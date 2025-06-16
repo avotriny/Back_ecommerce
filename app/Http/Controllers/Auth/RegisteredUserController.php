@@ -38,7 +38,7 @@ class RegisteredUserController extends Controller
         $tokenPayload = json_encode($data) . '|' . $randomCode;
         $token = Crypt::encryptString($tokenPayload);
 
-    $verificationUrl ="http://localhost:8000/registration/verify?token=" .  urlencode($token);
+    $verificationUrl ="http://localhost:5173/registration/verify?token=" .  urlencode($token);
 
 
         // 5. Envoyer la notification par e‑mail
