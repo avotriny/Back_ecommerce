@@ -11,79 +11,75 @@ class ProduitController extends Controller
 {
     public function index()
     {
-            $produits = Produit::with('subcategorie.categorie')->get();
-            return response()->json(['produit' => $produits,
-        "status"=>200]);
-            
-    }
+        $produits = Produit::with('subcategorie.categorie')->get();
 
-    public function store(request $request){
-        if ($request->has('images') && $request->input('images') === '') {
-            $request->request->remove('images');
-        }
-
-        $validator = Validator::make($request->all(),[
-           
-            'nom_prod' => 'required|string',
-                'desc_prod' => 'required|string',
-                'prix_prod' => 'required|string',
-                'stock_prod' => 'required|string',
-                'poids_prod' => 'nullable|string',
-                'promotoin' => 'nullable|string',
-                'origin_prod' => 'nullable|string',
-                'couleur' => 'nullable|string',
-                'taille' => 'nullable|string',
-                'pointure' => 'nullable|string',
-                'subcat_id' => 'required|numeric',
-            'images'=>'required|image|mimes:jpeg,png,jpg|max:2048',
+        return response()->json([
+            'produit' => $produits,
+            'status'  => 200,
         ]);
-        if($validator->fails()){
-            return response()->json([
-                'status'=>400,
-                'errors'=>$validator->messages(),
-            ]); 
-        }else{ 
-      
-       $produit = new Produit();
-       $produit->subcat_id = $request->input('subcat_id');
-       $produit->nom_prod = $request->input('nom_prod');
-       $produit->desc_prod = $request->input('desc_prod');
-       $produit->origin_prod = $request->input('origin_prod');
-       $produit->prix_prod = $request->input('prix_prod');
-       $produit->stock_prod = $request->input('stock_prod');
-       $produit->promotion = $request->input('promotion');
-       $produit->couleur = $request->input('couleur');
-       $produit->taille = $request->input('taille');
-       $produit->pointure = $request->input('pointure');
-       $produit->poids_prod = $request->input('poids_prod');
-       $produit->status = true;
-
-        if ($request->hasFile('images')) {
-            $images = $request->file('images');
-            $filename = time() . '_' . $images->getClientOriginalName();
-            $destinationPath = public_path('uploads/produit');
-    
-            if (!file_exists($destinationPath)) {
-                mkdir($destinationPath, 0755, true);
-            }
-    
-            $images->move($destinationPath, $filename);
-            $produit->images = 'uploads/produit/' . $filename;
-        }
-
-        if($request->hasFile('promotion')){
-            $produit->prix_promo = ($request->input('promotion') * $request->input('prix_prod'));
-        }
-       
-
-       $produit->save();
-       return response()->json([
-        'status'=>200,
-        'message'=>"avec success",
-        "produit"=>$produit
-    ]); 
-      }
     }
 
+    public function store(Request $request)
+    {
+        // Validation
+        $validator = Validator::make($request->all(), [
+            'nom_prod'    => 'required|string',
+            'desc_prod'   => 'required|string',
+            'prix_prod'   => 'required|numeric',
+            'stock_prod'  => 'required|integer',
+            'poids_prod'  => 'nullable|numeric',
+            'promotion'   => 'nullable|numeric|min:0|max:100',  // CORRECTION : orthographe promotion
+            'origin_prod' => 'nullable|string',
+            'couleur'     => 'nullable|string',
+            'taille'      => 'nullable|string',
+            'pointure'    => 'nullable|string',
+            'subcat_id'   => 'required|exists:subcategories,id',
+            'images'      => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
 
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 400,
+                'errors' => $validator->messages(),
+            ]);
+        }
+
+        // Préparer les données validées
+        $data = $validator->validated();
+
+        // Gérer l’upload de l’image
+        if ($request->hasFile('images')) {
+            $file      = $request->file('images');
+            $filename  = time() . '_' . $file->getClientOriginalName();
+            $destPath  = public_path('uploads/produit');
+            if (! file_exists($destPath)) {
+                mkdir($destPath, 0755, true);
+            }
+            $file->move($destPath, $filename);
+            $data['images'] = 'uploads/produit/' . $filename;
+        }
+
+        // Calcul automatique du prix promo s’il y a une promo
+        if (! empty($data['promotion'])) {
+            // Exemple : 10% de réduction => prix_promo = prix_prod * (1 - 10/100)
+            $data['prix_promo'] = round(
+                (1 - $data['promotion'] / 100) * $data['prix_prod'],
+                2
+            );
+        } else {
+            $data['prix_promo'] = null;
+        }
+
+        // Statut par défaut
+        $data['status'] = true;
+
+        // Création du produit
+        $produit = Produit::create($data);
+
+        return response()->json([
+            'status'  => 200,
+            'message' => 'Produit créé avec succès',
+            'produit' => $produit,
+        ]);
+    }
 }
