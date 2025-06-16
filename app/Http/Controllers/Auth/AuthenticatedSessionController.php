@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -56,6 +57,17 @@ class AuthenticatedSessionController extends Controller
              'success' => false,
              'message' => 'Email, pseudo ou mot de passe incorrect',
          ], 401);
+     }
+
+     public function index (){
+        $users = User::all();
+
+    // Note le "return" ici :
+    return response()->json([
+        'success' => true,
+        'message' => 'Liste des utilisateurs',
+        'users'   => $users,      // j’ai renommé en "users" pour coller au pluriel
+    ], 200);
      }
      
      
