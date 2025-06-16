@@ -34,6 +34,12 @@ Route::get('/email/verify/{id}/{hash}', VerifyEmailController::class)->name('ver
 
 Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])->name('verification.send');
 
+
+
+
+Route::middleware(['auth:sanctum','admin'])->group(function() {
+Route::get('/commande', [CommandeController::class, 'index']);
+Route::get('/users', [AuthenticatedSessionController::class, 'index']);
 Route::post('categorie', [CategorieController::class, 'store']);
 Route::post('/subcategorie', [SubCategorieController::class, 'store']);
 Route::get('categorie', [CategorieController::class, 'index']);
@@ -43,6 +49,5 @@ Route::post('/produit', [ProduitController::class, 'store']);
 Route::get('/produit', [ProduitController::class, 'index']);
 
 Route::post('/commande', [CommandeController::class, 'commande']);
-Route::get('/commande', [CommandeController::class, 'index']);
-Route::post('/stripe/webhook',    [StripeWebhookController::class, 'handleWebhook']);
+});
 
