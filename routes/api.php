@@ -11,7 +11,7 @@ use App\Http\Controllers\CategorieController;
 use App\Http\Controllers\ProduitController;
 use App\Http\Controllers\SubCategorieController;
 use App\Http\Controllers\CommandeController;
-use App\Http\Controllers\StripeWebhookController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,21 +33,26 @@ Route::get('/registration/verify', [RegistrationVerificationController::class, '
 Route::get('/email/verify/{id}/{hash}', VerifyEmailController::class)->name('verification.verify');
 
 Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])->name('verification.send');
+Route::middleware('auth:sanctum')->post('/profile', [ProfileController::class, 'updateProfile']);
 
+Route::middleware('auth:sanctum')->post('/produit', [ProduitController::class, 'store']);
+Route::get('/produit', [ProduitController::class, 'index']);
+Route::middleware('auth:sanctum')->post('categorie', [CategorieController::class, 'store']);
+Route::middleware('auth:sanctum')->post('/subcategorie', [SubCategorieController::class, 'store']);
+Route::get('categorie', [CategorieController::class, 'index']);
+Route::get('/subcategorie', [SubCategorieController::class, 'index']);
+Route::middleware('auth:sanctum')->post('produit/{produit}/like', [ProduitController::class, 'toggleLike']);
+Route::get('/like', [ProduitController::class, 'listLike']);
 
 
 
 Route::middleware(['auth:sanctum','admin'])->group(function() {
 Route::get('/commande', [CommandeController::class, 'index']);
 Route::get('/users', [AuthenticatedSessionController::class, 'index']);
-Route::post('categorie', [CategorieController::class, 'store']);
-Route::post('/subcategorie', [SubCategorieController::class, 'store']);
-Route::get('categorie', [CategorieController::class, 'index']);
-Route::get('/subcategorie', [SubCategorieController::class, 'index']);
 
-Route::post('/produit', [ProduitController::class, 'store']);
-Route::get('/produit', [ProduitController::class, 'index']);
+
 
 Route::post('/commande', [CommandeController::class, 'commande']);
+
 });
 
