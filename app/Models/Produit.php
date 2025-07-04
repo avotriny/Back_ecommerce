@@ -24,11 +24,6 @@ class Produit extends Model
         return $this->belongsTo(Subcategorie::class, 'subcat_id');
     }
 
-    public function commande()
-    {
-        return $this->belongsToMany(Commande::class);
-    }
-
         public function likes()
     {
         return $this->hasMany(Like::class, 'prod_id');
