@@ -42,17 +42,15 @@ Route::middleware('auth:sanctum')->post('/subcategorie', [SubCategorieController
 Route::get('categorie', [CategorieController::class, 'index']);
 Route::get('/subcategorie', [SubCategorieController::class, 'index']);
 Route::middleware('auth:sanctum')->post('produit/{produit}/like', [ProduitController::class, 'toggleLike']);
-Route::get('/like', [ProduitController::class, 'listLike']);
-
-
-
-Route::middleware(['auth:sanctum','admin'])->group(function() {
-Route::get('/commande', [CommandeController::class, 'index']);
-Route::get('/users', [AuthenticatedSessionController::class, 'index']);
-
-
-
 Route::post('/commande', [CommandeController::class, 'commande']);
+Route::get('/like', [ProduitController::class, 'listLike']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/commande', [CommandeController::class, 'index']);
+    Route::get('/livraison', [CommandeController::class, 'livraison']);
+});
+Route::middleware('auth:sanctum')->post('livraisonFaite', [CategorieController::class, 'livraisonFaite']);
+Route::middleware(['auth:sanctum','admin'])->group(function() {
 
+Route::get('/users', [AuthenticatedSessionController::class, 'index']);
 });
 
