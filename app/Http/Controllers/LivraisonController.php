@@ -69,4 +69,15 @@ class LivraisonController extends Controller
             ], 500);
         }
     }
+       public function livraisonFaites (){
+
+        $commande  = LivraisonFaite::with('commande.lignes.produit')->orderBy('created_at', 'desc')
+                               ->get();
+
+        return response()->json([
+            "commandes"=>$commande,
+            "status"=>200
+
+        ],200);
+    }
 }
