@@ -11,6 +11,7 @@ use App\Http\Controllers\CategorieController;
 use App\Http\Controllers\ProduitController;
 use App\Http\Controllers\SubCategorieController;
 use App\Http\Controllers\CommandeController;
+use App\Http\Controllers\LivraisonController;
 use App\Http\Controllers\ProfileController;
 
 /*
@@ -48,7 +49,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/commande', [CommandeController::class, 'index']);
     Route::get('/livraison', [CommandeController::class, 'livraison']);
 });
-Route::middleware('auth:sanctum')->post('livraisonFaite', [CategorieController::class, 'livraisonFaite']);
+Route::middleware('auth:sanctum')->post('livraisonFaite', [LivraisonController::class, 'livraisonFaite']);
+Route::middleware('auth:sanctum')->get('livraisonFaite', [LivraisonController::class, 'livraisonFaites']);
 Route::middleware(['auth:sanctum','admin'])->group(function() {
 
 Route::get('/users', [AuthenticatedSessionController::class, 'index']);
