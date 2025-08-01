@@ -11,7 +11,7 @@ class LivraisonFaite extends Model
      protected $table='livraison_faites';
     protected $fillable = [
         'commande_id',
-        'image',
+        'images',
         'signature',
     ];
 
