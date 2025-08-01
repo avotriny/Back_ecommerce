@@ -131,4 +131,61 @@ class ProduitController extends Controller
         ],200);
 
     }
+
+public function listeParNom()
+{
+    $all = Produit::with(['subcategorie.categorie'])->get();
+
+    $grouped = $all->groupBy('nom_prod');
+
+    $result = $grouped->map(function($variants, $name) {
+        $first = $variants->first();
+        return [
+            'nom_prod'   => $name,
+            'image'      => $first->images,
+            'prix_prod'  => $first->prix_prod,
+            'prix_promo' => $first->prix_promo,
+            'promotion'  => $first->promotion,
+            'variantes'  => $variants->map(fn($p) => [
+                'id'         => $p->id,
+                'couleur'    => $p->couleur,
+                'taille'     => $p->taille,
+                'pointure'   => $p->pointure,
+                'stock_prod' => $p->stock_prod,
+            ]),
+        ];
+    })->values();
+
+    return response()->json([
+        'produits' => $result,
+        'status'   => 200,
+    ]);
+}
+
+ /**
+     * Affiche toutes les variantes pour un produit donné (exact match).
+     *
+     * @param  string  $nom
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function showByNom($nom)
+    {
+        // On récupère tous les produits dont nom_prod = $nom, avec sous-catégorie + catégorie
+        $produits = Produit::with(['subcategorie.categorie'])
+            ->where('nom_prod', $nom)
+            ->get();
+
+        if ($produits->isEmpty()) {
+            return response()->json([
+                'message' => "Aucun produit trouvé pour « {$nom} »",
+                'status'  => 404,
+            ], 404);
+        }
+
+        return response()->json([
+            'produit' => $produits,
+            'status'  => 200,
+        ]);
+    }
+
 }
