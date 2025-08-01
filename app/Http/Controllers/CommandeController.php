@@ -264,16 +264,17 @@ public function commande(Request $request)
         ]);
     }
 
-    public function livraison (){
+public function livraison()
+{
+    $commandes = Commande::with('lignes.produit')
+        ->where('status', 'en attente')
+        ->orderBy('created_at', 'desc')
+        ->get();
 
-        $commande  = Commande::with('lignes')->where('status','en attente')
-                               ->orderBy('created_at', 'desc')
-                               ->get();
-
-        return response()->json([
-            "commandes"=>$commande,
-            "status"=>200
-
-        ],200);
-    }
+    return response()->json([
+        'commandes' => $commandes,
+        'status'     => 200,
+    ], 200);
 }
+}
+
