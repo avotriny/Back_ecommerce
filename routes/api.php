@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -43,6 +44,8 @@ Route::middleware('auth:sanctum')->post('/subcategorie', [SubCategorieController
 Route::get('categorie', [CategorieController::class, 'index']);
 Route::get('/subcategorie', [SubCategorieController::class, 'index']);
 Route::middleware('auth:sanctum')->post('produit/{produit}/like', [ProduitController::class, 'toggleLike']);
+Route::get('/produit/liste-par-nom', [ProduitController::class, 'listeParNom']);
+Route::get('/produit/{nom}', [ProduitController::class, 'showByNom']);
 Route::post('/commande', [CommandeController::class, 'commande']);
 Route::get('/like', [ProduitController::class, 'listLike']);
 Route::middleware('auth:sanctum')->group(function () {
@@ -54,5 +57,9 @@ Route::middleware('auth:sanctum')->get('livraisonFaite', [LivraisonController::c
 Route::middleware(['auth:sanctum','admin'])->group(function() {
 
 Route::get('/users', [AuthenticatedSessionController::class, 'index']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::patch('/users/{user}/role',   [AdminController::class, 'updateRole']);
+    Route::patch('/users/{user}/active', [AdminController::class, 'updateActive']);
+});
 });
 
